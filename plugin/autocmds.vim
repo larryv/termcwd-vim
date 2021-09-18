@@ -140,9 +140,13 @@ function! s:TermChangedHandler() abort
         " Handle returning from :shell.
         autocmd ShellCmdPost * call s:StdHandler()
 
-        " Handle the initial entrance to a windowed terminal buffer.
-        if exists('##TerminalWinOpen')
-            autocmd TerminalWinOpen * call s:StdHandler()
+        " Handle the initial entrance to a terminal buffer.  Requires
+        " patch 8.0.1596 but is more portable than `TerminalWinOpen`,
+        " which needs 8.1.2219.  I think StdHandler's current-buffer
+        " check is sufficient to weed out unwanted events, but if not,
+        " switching to `TerminalWinOpen` would be fine.
+        if exists('##TerminalOpen')
+            autocmd TerminalOpen * call s:StdHandler()
         endif
 
         " Handle ceding control to another process.  Leave a clean slate
