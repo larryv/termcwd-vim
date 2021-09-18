@@ -115,6 +115,7 @@ function! s:TermChangedHandler() abort
         return
     endif
 
+    " Remember to guard autocommands that use events unavailable in 7.2.
     augroup termcwd
         " Handle naming an unnamed buffer with :write or :update.
         autocmd BufAdd * call s:StdHandler()
@@ -128,11 +129,10 @@ function! s:TermChangedHandler() abort
         autocmd BufFilePost * call s:BufFilePostHandler()
 
         " Handle entering the command-line window.
-        if exists('##CmdwinEnter')
-            autocmd CmdwinEnter * call s:StdHandler()
-        endif
+        autocmd CmdwinEnter * call s:StdHandler()
 
-        " Handle changing the current directory.
+        " Handle changing the current directory.  Requires patch
+        " 8.0.1459.
         if exists('##DirChanged')
             autocmd DirChanged * call s:StdHandler(expand('%:p'))
         endif
@@ -152,6 +152,7 @@ function! s:TermChangedHandler() abort
         " Handle ceding control to another process.  Leave a clean slate
         " because there's no way to know whether that process will set
         " its own directory and document (although 'no' is a safe bet).
+        " Handling suspension requires patch 8.2.2128.
         autocmd VimLeave * call s:SetCwds('', '')
         if exists('##VimSuspend')
             autocmd VimSuspend * call s:SetCwds('', '')
@@ -159,7 +160,7 @@ function! s:TermChangedHandler() abort
 
         " Handle resuming after suspension.  Can't use the standard
         " handler because '<abuf>' is always empty.  Use '%:p' because
-        " '<amatch>' is always empty.
+        " '<amatch>' is always empty.  Requires patch 8.2.2128.
         if exists('##VimResume')
             autocmd VimResume * call s:BasicHandler(expand('%:p'))
         endif
