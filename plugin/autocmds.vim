@@ -109,11 +109,23 @@ function! s:TermChangedHandler() abort
     " TERM are changed.  Use its 'show-environment' command, maybe?
     if $TERM_PROGRAM ==# 'Apple_Terminal'
                 \ || &term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
-        let s:SetCwds = function('termcwd#nsterm#SetCwds')
+        let l:setcwds = 'termcwd#nsterm#SetCwds'
     else
         unlet! s:SetCwds
         return
     endif
+
+    if v:version < 702 || (v:version == 702 && !has('patch061'))
+        " Creating an autoloading Funcref fails if the function's script
+        " hasn't been sourced yet.  Call the function to force sourcing,
+        " but intentionally pass too few arguments so it does nothing.
+        try
+            call call(l:setcwds, [])
+        catch /\m\C^Vim(call):E119:/
+        endtry
+    endif
+
+    let s:SetCwds = function(l:setcwds)
 
     " Remember to guard autocommands that use events unavailable in 7.2.
     augroup termcwd
