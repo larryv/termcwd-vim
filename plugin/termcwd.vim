@@ -1,4 +1,4 @@
-" plugin/autocmds.vim
+" plugin/termcwd.vim
 " -------------------
 "
 " SPDX-License-Identifier: MIT

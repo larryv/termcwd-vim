@@ -16,6 +16,12 @@ contained in the `main` branch of the Git repository.
 All dates are UTC.
 
 
+## v0.2 (unreleased) ##
+
+-   Rename `plugin/autocmds.vim` to `plugin/termcwd.vim` to facilitate
+    packaging as a vimball.
+
+
 ## v0.1 ##
 
 2022-01-01  
