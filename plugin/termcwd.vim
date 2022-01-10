@@ -3,7 +3,7 @@
 "
 " SPDX-License-Identifier: MIT
 "
-" Copyright 2021 Lawrence Velázquez
+" Copyright 2021-2022 Lawrence Velázquez
 "
 " Permission is hereby granted, free of charge, to any person obtaining
 " a copy of this software and associated documentation files (the
@@ -79,6 +79,37 @@ function! s:BufFilePostHandler() abort
 endfunction
 
 
+" Returns a Funcref to a function that can set the terminal's current
+" directory and document.  The function accepts a directory path as the
+" first argument and a file path as the second, and either argument may
+" be empty to indicate that the corresponding state should be cleared.
+" Arguments that the terminal cannot use are ignored.
+"
+" Throws an exception if the current terminal is not supported.
+function! s:ChooseSetCwds() abort
+    " TODO: Identify terminals in tmux sessions, where TERM_PROGRAM and
+    " TERM are changed.  Use its 'show-environment' command, maybe?
+    if $TERM_PROGRAM ==# 'Apple_Terminal'
+                \ || &term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
+        let l:setcwds = 'termcwd#nsterm#SetCwds'
+    else
+        throw 'termcwd(ChooseSetCwds):unsupported terminal'
+    endif
+
+    if v:version < 702 || (v:version == 702 && !has('patch061'))
+        " Creating an autoloading Funcref fails if the function's script
+        " hasn't been sourced yet.  Call the function to force sourcing,
+        " but intentionally pass too few arguments so it does nothing.
+        try
+            call call(l:setcwds, [])
+        catch /\m\C^Vim(call):E119:/
+        endtry
+    endif
+
+    return function(l:setcwds)
+endfunction
+
+
 " Standard autocommand handler.  Calls the basic handler if the event
 " applies to the current buffer.  The argument is optional and is passed
 " to the basic handler.  If it is omitted, the default is the expansion
@@ -103,29 +134,14 @@ function! s:TermChangedHandler() abort
         autocmd TermChanged * call s:TermChangedHandler()
     augroup END
 
-    " Select a function to 'communicate' with a supported terminal.
-    "
-    " TODO: Identify terminals in tmux sessions, where TERM_PROGRAM and
-    " TERM are changed.  Use its 'show-environment' command, maybe?
-    if $TERM_PROGRAM ==# 'Apple_Terminal'
-                \ || &term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
-        let l:setcwds = 'termcwd#nsterm#SetCwds'
-    else
+    " Pick the function for setting the terminal's current directory and
+    " document.
+    try
+        let s:SetCwds = s:ChooseSetCwds()
+    catch /\m\C^termcwd(ChooseSetCwds):/
         unlet! s:SetCwds
         return
-    endif
-
-    if v:version < 702 || (v:version == 702 && !has('patch061'))
-        " Creating an autoloading Funcref fails if the function's script
-        " hasn't been sourced yet.  Call the function to force sourcing,
-        " but intentionally pass too few arguments so it does nothing.
-        try
-            call call(l:setcwds, [])
-        catch /\m\C^Vim(call):E119:/
-        endtry
-    endif
-
-    let s:SetCwds = function(l:setcwds)
+    endtry
 
     " Remember to guard autocommands that use events unavailable in 7.2.
     augroup termcwd
