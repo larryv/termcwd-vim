@@ -20,6 +20,8 @@ All dates are UTC.
 
 -   Rename `plugin/autocmds.vim` to `plugin/termcwd.vim` to facilitate
     packaging as a vimball.
+-   Learned how to identify the underlying terminal from within tmux
+    sessions.
 
 
 ## v0.1 ##

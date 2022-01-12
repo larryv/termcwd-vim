@@ -91,10 +91,11 @@ endfunction
 "
 " Throws an exception if the current terminal is not supported.
 function! s:ChooseSetCwds() abort
-    " TODO: Identify terminals in tmux sessions, where TERM_PROGRAM and
-    " TERM are changed.  Use its 'show-environment' command, maybe?
-    if $TERM_PROGRAM ==# 'Apple_Terminal'
-                \ || &term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
+    let l:term = s:GetOrigTerm()
+    let l:term_program = s:GetOrigTermProgram()
+
+    if l:term_program ==# 'Apple_Terminal'
+                \ || l:term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
         let l:setcwds = 'termcwd#nsterm#SetCwds'
     else
         throw 'termcwd(ChooseSetCwds):unsupported terminal'
@@ -111,6 +112,36 @@ function! s:ChooseSetCwds() abort
     endif
 
     return function(l:setcwds)
+endfunction
+
+
+" Attempts to return the 'original' value for the 'term' Vim option.
+" The returned value only differs from the current value within tmux
+" sessions because tmux modifies the value of the TERM environment
+" variable (and, by extension, 'term').
+function! s:GetOrigTerm() abort
+    if &term =~# '^tmux-\|^tmux$'
+        try
+            return termcwd#tmux#GetGlobalEnvVar('TERM')
+        catch /\m\C^termcwd(tmux#GetGlobalEnvVar):/
+        endtry
+    endif
+    return &term
+endfunction
+
+
+" Attempts to return the 'original' value for the TERM_PROGRAM
+" environment variable.  The returned value only differs from the
+" current value within tmux sessions because tmux changes the value of
+" TERM_PROGRAM to 'tmux'.
+function! s:GetOrigTermProgram() abort
+    if $TERM_PROGRAM ==# 'tmux'
+        try
+            return termcwd#tmux#GetGlobalEnvVar('TERM_PROGRAM')
+        catch /\m\C^termcwd(tmux#GetGlobalEnvVar):/
+        endtry
+    endif
+    return $TERM_PROGRAM
 endfunction
 
 
