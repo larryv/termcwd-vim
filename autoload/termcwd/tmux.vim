@@ -43,3 +43,18 @@ function! termcwd#tmux#GetGlobalEnvVar(var_name) abort
     endif
     return substitute(l:cmd_output, '\C^.\{-}=\|\n$', '', 'g')
 endfunction
+
+
+" Passes the control sequence [1][2] `seq` through tmux [3] to the
+" underlying terminal.
+function! termcwd#tmux#SendCtrlSeq(seq) abort
+    let l:seq = "\ePtmux;" . substitute(a:seq, '\C\e', '\0\0', 'g') . "\e\\"
+    call termcwd#SendCtrlSeq(l:seq)
+endfunction
+
+
+" References
+"
+"  1. https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+"  2. https://en.wikipedia.org/wiki/C0_and_C1_control_codes
+"  3. https://github.com/tmux/tmux/wiki/FAQ#what-is-the-passthrough-escape-sequence-and-how-do-i-use-it

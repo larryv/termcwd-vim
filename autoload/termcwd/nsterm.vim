@@ -3,7 +3,7 @@
 "
 " SPDX-License-Identifier: MIT
 "
-" Copyright 2021 Lawrence Velázquez
+" Copyright 2021-2022 Lawrence Velázquez
 "
 " Permission is hereby granted, free of charge, to any person obtaining
 " a copy of this software and associated documentation files (the
@@ -33,7 +33,10 @@ set cpoptions&vim
 " document.  If either argument is empty, tells Terminal to clear its
 " corresponding state.  Nonempty arguments should be absolute paths, or
 " the behavior is unspecified.
-function! termcwd#nsterm#SetCwds(dir, doc) abort
+"
+" `SendCtrlSeq` must be a Funcref to a function that accepts a control
+" sequence [1][2] and sends it to the terminal.
+function! termcwd#nsterm#SetCwds(dir, doc, SendCtrlSeq) abort
     " The sequences are intended to contain valid RFC 8089 'file' URIs
     " (<https://www.rfc-editor.org/rfc/rfc8089.html>).
 
@@ -60,9 +63,15 @@ function! termcwd#nsterm#SetCwds(dir, doc) abort
         let l:doc_seq = "\e]6;file://" . l:enc_host . l:enc_doc . "\7"
     endif
 
-    call termcwd#SendCtrlSeq(l:dir_seq . l:doc_seq)
+    call a:SendCtrlSeq(l:dir_seq . l:doc_seq)
 endfunction
 
 
 let &cpoptions = s:saved_cpoptions
 unlet s:saved_cpoptions
+
+
+" References
+"
+"  1. https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+"  2. https://en.wikipedia.org/wiki/C0_and_C1_control_codes

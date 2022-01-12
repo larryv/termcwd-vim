@@ -3,7 +3,7 @@
 "
 " SPDX-License-Identifier: MIT
 "
-" Copyright 2021 Lawrence Velázquez
+" Copyright 2021-2022 Lawrence Velázquez
 "
 " Permission is hereby granted, free of charge, to any person obtaining
 " a copy of this software and associated documentation files (the
@@ -77,10 +77,9 @@ function! termcwd#PercentEncodeRegName(name) abort
 endfunction
 
 
-" Sends the control sequence [5][6] `seq` to the terminal emulator.  If
-" run inside tmux [7], modifies `seq` so it is passed through; otherwise
-" uses it literally (e.g., '\e' is not interpreted as ESC).  It must not
-" produce visible output.
+" Sends the control sequence [5][6] `seq` to the terminal, treating it
+" literally (e.g., '\e' is not interpreted as ESC).  The sequence must
+" not produce visible output.
 "
 " This implementation requires that the printf(1) utility be available
 " as a shell builtin or via PATH and that shell-related options (e.g.,
@@ -92,18 +91,10 @@ function! termcwd#SendCtrlSeq(seq) abort
     " Callers should not be passing in non-Strings.
     let l:seq = a:seq . ''
 
-    " Tell tmux to pass the sequence through [7].
-    " TODO: Look into handling GNU screen.
-    " TODO: Look into handling Vim terminal buffers.
-    if $TMUX isnot ''
-        let l:seq = substitute(l:seq, '\C\e', '\0\0', 'g')
-        let l:seq = "\ePtmux;" . l:seq . "\e\\"
-    endif
-
     " Don't waste time sending the same sequence repeatedly.
     if !exists('s:prev_seq') || l:seq !=# s:prev_seq
         " I would love to do this in a simple, 'Vim-native' way.  My
-        " first attempt hijacked 'title' [8], and initial versions of
+        " first attempt hijacked 'title' [7], and initial versions of
         " this plugin used 'icon', but I don't like commandeering user
         " options.  Using '!printf' works but imposes restrictions on
         " shell-related options and is slower than I'd like.
@@ -125,5 +116,4 @@ unlet s:saved_cpoptions
 "  4. https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2.2
 "  5. https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 "  6. https://en.wikipedia.org/wiki/C0_and_C1_control_codes
-"  7. https://github.com/tmux/tmux/wiki/FAQ#what-is-the-passthrough-escape-sequence-and-how-do-i-use-it
-"  8. https://github.com/larryv/vimfiles/commit/353a2a35a1d2e51c11932eae075147775a27e597
+"  7. https://github.com/larryv/vimfiles/commit/353a2a35a1d2e51c11932eae075147775a27e597

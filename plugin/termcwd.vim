@@ -54,7 +54,7 @@ function! s:BasicHandler(doc) abort
         let l:dir = getcwd()
         let l:doc = ''
     endif
-    call s:SetCwds(l:dir, l:doc)
+    call s:SetCwds(l:dir, l:doc, s:SendCtrlSeq)
 endfunction
 
 
@@ -83,11 +83,37 @@ function! s:BufFilePostHandler() abort
 endfunction
 
 
+" Returns a Funcref to a function that accepts a control sequence [1][2]
+" as a String argument and passes it to the underlying terminal.
+function! s:ChooseSendCtrlSeq() abort
+    " TODO: Look into handling GNU screen.
+    " TODO: Look into handling Vim terminal buffers.
+    if $TMUX isnot ''
+        let l:sendctrlseq = 'termcwd#tmux#SendCtrlSeq'
+    else
+        let l:sendctrlseq = 'termcwd#SendCtrlSeq'
+    endif
+
+    if v:version < 702 || (v:version == 702 && !has('patch061'))
+        " Creating an autoloading Funcref fails if the function's script
+        " hasn't been sourced yet.  Call the function to force sourcing,
+        " but intentionally pass too few arguments so it does nothing.
+        try
+            call call(l:sendctrlseq, [])
+        catch /\m\C^Vim(call):E119:/
+        endtry
+    endif
+
+    return function(l:sendctrlseq)
+endfunction
+
+
 " Returns a Funcref to a function that can set the terminal's current
 " directory and document.  The function accepts a directory path as the
-" first argument and a file path as the second, and either argument may
-" be empty to indicate that the corresponding state should be cleared.
-" Arguments that the terminal cannot use are ignored.
+" first argument, a file path as the second, and a Funcref returned by
+" s:ChooseSendCtrlSeq() as the third.  Either path argument may be empty
+" to indicate that the corresponding state should be cleared.  Arguments
+" that the terminal cannot use are ignored.
 "
 " Throws an exception if the current terminal is not supported.
 function! s:ChooseSetCwds() abort
@@ -169,14 +195,15 @@ function! s:TermChangedHandler() abort
         autocmd TermChanged * call s:TermChangedHandler()
     augroup END
 
-    " Pick the function for setting the terminal's current directory and
-    " document.
+    " Pick the functions for assembling control sequences and sending
+    " them to the terminal.
     try
         let s:SetCwds = s:ChooseSetCwds()
     catch /\m\C^termcwd(ChooseSetCwds):/
-        unlet! s:SetCwds
+        unlet! s:SendCtrlSeq s:SetCwds
         return
     endtry
+    let s:SendCtrlSeq = s:ChooseSendCtrlSeq()
 
     " Remember to guard autocommands that use events unavailable in 7.2.
     augroup termcwd
@@ -216,9 +243,9 @@ function! s:TermChangedHandler() abort
         " because there's no way to know whether that process will set
         " its own directory and document (although 'no' is a safe bet).
         " Handling suspension requires patch 8.2.2128.
-        autocmd VimLeave * call s:SetCwds('', '')
+        autocmd VimLeave * call s:SetCwds('', '', s:SendCtrlSeq)
         if exists('##VimSuspend')
-            autocmd VimSuspend * call s:SetCwds('', '')
+            autocmd VimSuspend * call s:SetCwds('', '', s:SendCtrlSeq)
         endif
 
         " Handle resuming after suspension.  Can't use the standard
@@ -242,3 +269,9 @@ call s:TermChangedHandler()
 
 let &cpoptions = s:saved_cpoptions
 unlet s:saved_cpoptions
+
+
+" References
+"
+"  1. https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+"  2. https://en.wikipedia.org/wiki/C0_and_C1_control_codes
