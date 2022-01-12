@@ -43,14 +43,18 @@ set cpoptions&vim
 function! s:BasicHandler(doc) abort
     if &buftype ==# '' || &buftype ==# 'nowrite' || &buftype ==# 'help'
         " The buffer is associated with a file.
-        call s:SetCwds(getcwd(), a:doc)
+        let l:dir = getcwd()
+        let l:doc = a:doc
     elseif &buftype ==# 'terminal' || &buftype ==# 'prompt'
         " The buffer is intended for use with external jobs.
-        call s:SetCwds('', '')
+        let l:dir = ''
+        let l:doc = ''
     else
         " The buffer is not associated with a file.
-        call s:SetCwds(getcwd(), '')
+        let l:dir = getcwd()
+        let l:doc = ''
     endif
+    call s:SetCwds(l:dir, l:doc)
 endfunction
 
 
