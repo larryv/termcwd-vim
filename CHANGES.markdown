@@ -16,7 +16,10 @@ repository.
 All dates are UTC.
 
 
-## v0.2 (unreleased) ##
+## v0.2 ##
+
+2022-01-13  
+https://github.com/larryv/termcwd-vim/releases/tag/v0.2
 
 -   `plugin/autocmds.vim` was renamed to `plugin/termcwd.vim` to
     facilitate packaging as a vimball.
