@@ -9,17 +9,17 @@
 
 # Changes #
 
-This is a summary of features, enhancements, and bugfixes implemented in
-each version of `termcwd` for Vim.  The complete history of changes is
-contained in the `main` branch of the Git repository.
+This is a summary of notable changes in each version of `termcwd` for
+Vim.  The complete history is contained in the `main` branch of the Git
+repository.
 
 All dates are UTC.
 
 
 ## v0.2 (unreleased) ##
 
--   Rename `plugin/autocmds.vim` to `plugin/termcwd.vim` to facilitate
-    packaging as a vimball.
+-   `plugin/autocmds.vim` was renamed to `plugin/termcwd.vim` to
+    facilitate packaging as a vimball.
 -   Learned how to identify the underlying terminal from within tmux
     sessions.
 

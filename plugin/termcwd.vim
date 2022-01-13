@@ -76,6 +76,7 @@ endfunction
 " until they switch windows or buffers.)
 "
 " TODO: Look into whether the quickfix window needs similar treatment.
+" TODO: See if getcmdwintype() would be useful for this.
 function! s:BufFilePostHandler() abort
     if expand('<afile>') !=# '[Command Line]' && expand('<amatch>')[0] !=# '!'
         call s:StdHandler()
@@ -221,8 +222,9 @@ function! s:TermChangedHandler() abort
         " Handle entering the command-line window.
         autocmd CmdwinEnter * call s:StdHandler()
 
-        " Handle changing the current directory.  Requires patch
-        " 8.0.1459.
+        " Handle changing the current directory.  This only matters in
+        " fileless windows because the other autocommands update the
+        " directory too.  Requires patch 8.0.1459.
         if exists('##DirChanged')
             autocmd DirChanged * call s:StdHandler(expand('%:p'))
         endif
@@ -250,7 +252,7 @@ function! s:TermChangedHandler() abort
 
         " Handle resuming after suspension.  Can't use the standard
         " handler because '<abuf>' is always empty.  Use '%:p' because
-        " '<amatch>' is always empty.  Requires patch 8.2.2128.
+        " '<amatch>' is also always empty.  Requires patch 8.2.2128.
         if exists('##VimResume')
             autocmd VimResume * call s:BasicHandler(expand('%:p'))
         endif

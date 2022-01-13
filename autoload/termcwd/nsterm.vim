@@ -29,10 +29,10 @@ let s:saved_cpoptions = &cpoptions
 set cpoptions&vim
 
 
-" Sets Apple Terminal's current working directory and current working
-" document.  If either argument is empty, tells Terminal to clear its
-" corresponding state.  Nonempty arguments should be absolute paths, or
-" the behavior is unspecified.
+" Sets Apple Terminal's current working directory to `dir` and current
+" working document to `doc`.  If either is empty, tells Terminal to
+" clear its corresponding state; otherwise, both `dir` and `doc` should
+" be absolute paths, or the behavior is unspecified.
 "
 " `SendCtrlSeq` must be a Funcref to a function that accepts a control
 " sequence [1][2] and sends it to the terminal.
