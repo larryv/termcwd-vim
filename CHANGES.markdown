@@ -22,9 +22,9 @@ All dates are UTC.
 https://github.com/larryv/termcwd-vim/releases/tag/v0.2
 
 -   `plugin/autocmds.vim` was renamed to `plugin/termcwd.vim` to
-    facilitate packaging as a vimball.
+    facilitate packaging as a vimball. (880f95f)
 -   Learned how to identify the underlying terminal from within tmux
-    sessions.
+    sessions. (04f03f9)
 
 
 ## v0.1 ##
