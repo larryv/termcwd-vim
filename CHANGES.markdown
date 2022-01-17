@@ -16,12 +16,15 @@ repository.
 All dates are UTC.
 
 
-## Unreleased ##
+## v0.3 ##
+
+2022-01-17  
+https://github.com/larryv/termcwd-vim/releases/tag/v0.3
 
 -   Stopped trying to identify the host terminal from within tmux
     because the method introduced in version 0.2 was broken nonsense.
-    (XXXXXXX)
--   Learned to work within GNU `screen`. (XXXXXXX)
+    (d94b539)
+-   Learned to work within GNU `screen`. (8e4b9f5)
 
 
 ## v0.2 ##
