@@ -87,10 +87,12 @@ endfunction
 " Returns a Funcref to a function that accepts a control sequence [1][2]
 " as a String argument and passes it to the underlying terminal.
 function! s:ChooseSendCtrlSeq() abort
-    " TODO: Look into handling GNU screen.
     " TODO: Look into handling Vim terminal buffers.
     if $TMUX isnot ''
         let l:sendctrlseq = 'termcwd#tmux#SendCtrlSeq'
+    elseif &term =~# '^screen\d*\%(-[^-]\|\.[^.]\|$\)'
+                \ || $TERMCAP =~# '^SC|screen\d*\%(-[^-]\|\.[^.]\|[|:]\)'
+        let l:sendctrlseq = 'termcwd#screen#SendCtrlSeq'
     else
         let l:sendctrlseq = 'termcwd#SendCtrlSeq'
     endif

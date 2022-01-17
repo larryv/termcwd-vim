@@ -21,6 +21,7 @@ All dates are UTC.
 -   Stopped trying to identify the host terminal from within tmux
     because the method introduced in version 0.2 was broken nonsense.
     (XXXXXXX)
+-   Learned to work within GNU `screen`. (XXXXXXX)
 
 
 ## v0.2 ##
