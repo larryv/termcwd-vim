@@ -25,26 +25,6 @@
 " SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-" This plugin's tmux workarounds are known to be necessary for and work
-" with tmux 3.2a.
-
-
-" Given the name of an environment variable in `var_name`, returns the
-" variable's value from tmux's global environment.  Throws an exception
-" if the variable has been removed from the environment or is hidden.
-function! termcwd#tmux#GetGlobalEnvVar(var_name) abort
-    let l:cmd = 'tmux show-environment -g ' . shellescape(a:var_name)
-    silent let l:cmd_output = system(l:cmd)
-    if v:shell_error || l:cmd_output !~# '='
-        let l:exception = 'termcwd(tmux#GetGlobalEnvVar):'
-        let l:exception .= 'could not get variable ' . a:var_name
-        let l:exception .= ' from tmux environment'
-        throw l:exception
-    endif
-    return substitute(l:cmd_output, '\C^.\{-}=\|\n$', '', 'g')
-endfunction
-
-
 " Passes the control sequence [1][2] `seq` through tmux [3] to the
 " underlying terminal.
 function! termcwd#tmux#SendCtrlSeq(seq) abort

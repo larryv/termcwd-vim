@@ -16,6 +16,13 @@ repository.
 All dates are UTC.
 
 
+## Unreleased ##
+
+-   Stopped trying to identify the host terminal from within tmux
+    because the method introduced in version 0.2 was broken nonsense.
+    (XXXXXXX)
+
+
 ## v0.2 ##
 
 2022-01-13  
