@@ -98,4 +98,4 @@ Notes
 
 SPDX-License-Identifier: MIT
 
-Copyright 2021 Lawrence Velázquez
+Copyright 2021 Lawrence Velazquez

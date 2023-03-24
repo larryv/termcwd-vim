@@ -4,7 +4,7 @@
 
     SPDX-License-Identifier: MIT
 
-    Copyright 2022 Lawrence Velázquez
+    Copyright 2022 Lawrence Velazquez
 -->
 
 # Changes #
