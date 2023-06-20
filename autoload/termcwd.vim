@@ -3,7 +3,7 @@
 "
 " SPDX-License-Identifier: MIT
 "
-" Copyright 2021-2022 Lawrence Velazquez
+" Copyright 2021-2023 Lawrence Velazquez
 "
 " Permission is hereby granted, free of charge, to any person obtaining
 " a copy of this software and associated documentation files (the
@@ -44,20 +44,20 @@ set cpoptions&vim
 "   - Inside '[...]' and friends, always using '\\' to represent '\' and
 "     never using '\' for anything else.
 function! termcwd#PercentEncode(str, ...) abort
-    " The pithier 'a:str[v:val]' does not work bytewise in Vim 9 script.
-    let l:bytes = map(range(strlen(a:str)), 'strpart(a:str, v:val, 1)')
+	" The pithier 'a:str[v:val]' does not work bytewise in Vim 9 script.
+	let l:bytes = map(range(strlen(a:str)), 'strpart(a:str, v:val, 1)')
 
-    " Constructing this literal in-function looks wasteful but is just
-    " as fast as accessing predefined script-local Dictionary entries
-    " and is more legible to boot.  Use '\w' to match common bytes a bit
-    " faster than '[0-9A-Za-z_]'.
-    let l:encoding_expr = 'v:val =~# ''\w\|[-.~]'''
-    if a:0 >= 1
-        let l:encoding_expr .= ' || v:val =~# a:1'
-    endif
-    let l:encoding_expr .= ' ? v:val : printf("%%%02X", char2nr(v:val))'
+	" Constructing this literal in-function looks wasteful but is just
+	" as fast as accessing predefined script-local Dictionary entries
+	" and is more legible to boot.  Use '\w' to match common bytes a bit
+	" faster than '[0-9A-Za-z_]'.
+	let l:encoding_expr = 'v:val =~# ''\w\|[-.~]'''
+	if a:0 >= 1
+		let l:encoding_expr .= ' || v:val =~# a:1'
+	endif
+	let l:encoding_expr .= ' ? v:val : printf("%%%02X", char2nr(v:val))'
 
-    return join(map(l:bytes, l:encoding_expr), '')
+	return join(map(l:bytes, l:encoding_expr), '')
 endfunction
 
 
@@ -65,7 +65,7 @@ endfunction
 " 'path-absolute', 'path-rootless', or 'path-empty' component [3].  The
 " argument is not required to be in any particular text encoding.
 function! termcwd#PercentEncodePath(path) abort
-    return termcwd#PercentEncode(a:path, '\m\C[/!$&''()*+,;=:@]')
+	return termcwd#PercentEncode(a:path, '\m\C[/!$&''()*+,;=:@]')
 endfunction
 
 
@@ -73,7 +73,7 @@ endfunction
 " component [4].  The argument is not required to be in any particular
 " text encoding or have any particular syntax.
 function! termcwd#PercentEncodeRegName(name) abort
-    return termcwd#PercentEncode(a:name, '\m\C[!$&''()*+,;=]')
+	return termcwd#PercentEncode(a:name, '\m\C[!$&''()*+,;=]')
 endfunction
 
 
@@ -88,19 +88,19 @@ endfunction
 " a caller sending multiple sequences should consider concatenating them
 " and making just one call.
 function! termcwd#SendCtrlSeq(seq) abort
-    " Callers should not be passing in non-Strings.
-    let l:seq = a:seq . ''
+	" Callers should not be passing in non-Strings.
+	let l:seq = a:seq . ''
 
-    " Don't waste time sending the same sequence repeatedly.
-    if !exists('s:prev_seq') || l:seq !=# s:prev_seq
-        " I would love to do this in a simple, 'Vim-native' way.  My
-        " first attempt hijacked 'title' [7], and initial versions of
-        " this plugin used 'icon', but I don't like commandeering user
-        " options.  Using '!printf' works but imposes restrictions on
-        " shell-related options and is slower than I'd like.
-        execute 'silent !printf "\%s" ' . shellescape(l:seq, 1)
-        let s:prev_seq = l:seq
-    endif
+	" Don't waste time sending the same sequence repeatedly.
+	if !exists('s:prev_seq') || l:seq !=# s:prev_seq
+		" I would love to do this in a simple, 'Vim-native' way.  My
+		" first attempt hijacked 'title' [7], and initial versions of
+		" this plugin used 'icon', but I don't like commandeering user
+		" options.  Using '!printf' works but imposes restrictions on
+		" shell-related options and is slower than I'd like.
+		execute 'silent !printf "\%s" ' . shellescape(l:seq, 1)
+		let s:prev_seq = l:seq
+	endif
 endfunction
 
 

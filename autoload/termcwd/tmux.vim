@@ -3,7 +3,7 @@
 "
 " SPDX-License-Identifier: MIT
 "
-" Copyright 2022 Lawrence Velazquez
+" Copyright 2022-2023 Lawrence Velazquez
 "
 " Permission is hereby granted, free of charge, to any person obtaining
 " a copy of this software and associated documentation files (the
@@ -28,8 +28,8 @@
 " Passes the control sequence [1][2] `seq` through tmux [3] to the
 " underlying terminal.
 function! termcwd#tmux#SendCtrlSeq(seq) abort
-    let l:seq = "\ePtmux;" . substitute(a:seq, '\C\e', '\0\0', 'g') . "\e\\"
-    call termcwd#SendCtrlSeq(l:seq)
+	let l:seq = "\ePtmux;" . substitute(a:seq, '\C\e', '\0\0', 'g') . "\e\\"
+	call termcwd#SendCtrlSeq(l:seq)
 endfunction
 
 
