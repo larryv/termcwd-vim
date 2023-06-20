@@ -98,9 +98,10 @@ function! s:ChooseSendCtrlSeq() abort
 	endif
 
 	if v:version < 702 || (v:version == 702 && !has('patch061'))
-		" Creating an autoloading Funcref fails if the function's script
-		" hasn't been sourced yet.  Call the function to force sourcing,
-		" but intentionally pass too few arguments so it does nothing.
+		" Creating an autoloading Funcref fails if the
+		" function's script hasn't been sourced yet.  Call the
+		" function to force sourcing, but intentionally pass too
+		" few arguments so it does nothing.
 		try
 			call call(l:sendctrlseq, [])
 		catch /\m\C^Vim(call):E119:/
@@ -120,9 +121,9 @@ endfunction
 "
 " Throws an exception if the current terminal is not supported.
 function! s:ChooseSetCwds() abort
-	" TODO: Identify terminals in tmux sessions, where TERM_PROGRAM and
-	" TERM are changed.  Turns out that `tmux show-environment` doesn't
-	" do what I need, so I don't know what to try now.
+	" TODO: Identify terminals in tmux sessions, where TERM_PROGRAM
+	" and TERM are changed.  Turns out that `tmux show-environment`
+	" doesn't do what I need, so I don't know what to try now.
 	if $TERM_PROGRAM ==# 'Apple_Terminal'
 	            \ || &term =~# '^nsterm-\|^nsterm$\|^Apple_Terminal$'
 		let l:setcwds = 'termcwd#nsterm#SetCwds'
@@ -131,9 +132,10 @@ function! s:ChooseSetCwds() abort
 	endif
 
 	if v:version < 702 || (v:version == 702 && !has('patch061'))
-		" Creating an autoloading Funcref fails if the function's script
-		" hasn't been sourced yet.  Call the function to force sourcing,
-		" but intentionally pass too few arguments so it does nothing.
+		" Creating an autoloading Funcref fails if the
+		" function's script hasn't been sourced yet.  Call the
+		" function to force sourcing, but intentionally pass too
+		" few arguments so it does nothing.
 		try
 			call call(l:setcwds, [])
 		catch /\m\C^Vim(call):E119:/
@@ -168,8 +170,8 @@ function! s:TermChangedHandler() abort
 		autocmd TermChanged * call s:TermChangedHandler()
 	augroup END
 
-	" Pick the functions for assembling control sequences and sending
-	" them to the terminal.
+	" Pick the functions for assembling control sequences and
+	" sending them to the terminal.
 	try
 		let s:SetCwds = s:ChooseSetCwds()
 	catch /\m\C^termcwd(ChooseSetCwds):/
@@ -178,14 +180,15 @@ function! s:TermChangedHandler() abort
 	endtry
 	let s:SendCtrlSeq = s:ChooseSendCtrlSeq()
 
-	" Remember to guard autocommands that use events unavailable in 7.2.
+	" NOTE: Guard autocommands that use events unavailable in 7.2.
 	augroup termcwd
-		" Handle naming an unnamed buffer with :write or :update.
+		" Handle naming an unnamed buffer with :write or
+		" :update.
 		autocmd BufAdd * call s:StdHandler()
 
-		" Handle switching buffers.  This covers a lot of ground, but
-		" some actions don't switch buffers, and others switch *before*
-		" changing the file name.
+		" Handle switching buffers.  This covers a lot of
+		" ground, but some actions don't switch buffers, and
+		" others switch *before* changing the file name.
 		autocmd BufEnter * call s:BufEnterHandler()
 
 		" Handle renaming a buffer with :file or :saveas.
@@ -194,9 +197,10 @@ function! s:TermChangedHandler() abort
 		" Handle entering the command-line window.
 		autocmd CmdwinEnter * call s:StdHandler()
 
-		" Handle changing the current directory.  This only matters in
-		" fileless windows because the other autocommands update the
-		" directory too.  Requires patch 8.0.1459.
+		" Handle changing the current directory.  This only
+		" matters in fileless windows because the other
+		" autocommands update the directory too.  Requires patch
+		" 8.0.1459.
 		if exists('##DirChanged')
 			autocmd DirChanged * call s:StdHandler(expand('%:p'))
 		endif
@@ -204,34 +208,37 @@ function! s:TermChangedHandler() abort
 		" Handle returning from :shell.
 		autocmd ShellCmdPost * call s:StdHandler()
 
-		" Handle the initial entrance to a terminal buffer.  Requires
-		" patch 8.0.1596 but is more portable than `TerminalWinOpen`,
-		" which needs 8.1.2219.  I think StdHandler's current-buffer
-		" check is sufficient to weed out unwanted events, but if not,
-		" switching to `TerminalWinOpen` would be fine.
+		" Handle the initial entrance to a terminal buffer.
+		" Requires patch 8.0.1596 but is more portable than
+		" `TerminalWinOpen`, which needs 8.1.2219.  I think
+		" StdHandler's current-buffer check is sufficient to
+		" weed out unwanted events, but if not, switching to
+		" `TerminalWinOpen` would be fine.
 		if exists('##TerminalOpen')
 			autocmd TerminalOpen * call s:StdHandler()
 		endif
 
-		" Handle ceding control to another process.  Leave a clean slate
-		" because there's no way to know whether that process will set
-		" its own directory and document (although 'no' is a safe bet).
-		" Handling suspension requires patch 8.2.2128.
+		" Handle ceding control to another process.  Leave
+		" a clean slate because there's no way to know whether
+		" that process will set its own directory and document
+		" (although 'no' is a safe bet).  Handling suspension
+		" requires patch 8.2.2128.
 		autocmd VimLeave * call s:SetCwds('', '', s:SendCtrlSeq)
 		if exists('##VimSuspend')
 			autocmd VimSuspend * call s:SetCwds('', '', s:SendCtrlSeq)
 		endif
 
-		" Handle resuming after suspension.  Can't use the standard
-		" handler because '<abuf>' is always empty.  Use '%:p' because
-		" '<amatch>' is also always empty.  Requires patch 8.2.2128.
+		" Handle resuming after suspension.  Can't use the
+		" standard handler because '<abuf>' is always empty.
+		" Use '%:p' because '<amatch>' is also always empty.
+		" Requires patch 8.2.2128.
 		if exists('##VimResume')
 			autocmd VimResume * call s:BasicHandler(expand('%:p'))
 		endif
 
-		" Handle switching windows.  This covers a lot of ground, but
-		" some actions don't switch windows, and others switch *before*
-		" changing the file name.
+		" Handle switching windows.  This covers a lot of
+		" ground, but some actions don't switch windows, and
+		" others switch *before* changing the file name.
 		autocmd WinEnter * call s:StdHandler()
 	augroup END
 endfunction

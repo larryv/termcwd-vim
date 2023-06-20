@@ -37,8 +37,8 @@ set cpoptions&vim
 " `SendCtrlSeq` must be a Funcref to a function that accepts a control
 " sequence [1][2] and sends it to the terminal.
 function! termcwd#nsterm#SetCwds(dir, doc, SendCtrlSeq) abort
-	" The sequences are intended to contain valid RFC 8089 'file' URIs
-	" (<https://www.rfc-editor.org/rfc/rfc8089.html>).
+	" The sequences are intended to contain valid RFC 8089 'file'
+	" URIs (<https://www.rfc-editor.org/rfc/rfc8089.html>).
 
 	" TODO: What about remote paths?
 	let l:enc_host = termcwd#PercentEncodeRegName(hostname())

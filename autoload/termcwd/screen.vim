@@ -28,20 +28,21 @@
 " Passes the control sequence [1][2] `seq` through GNU `screen` to the
 " underlying terminal.
 function! termcwd#screen#SendCtrlSeq(seq) abort
-	" Package `seq` into a Device Control String sequence by converting
-	" ESC \ to ESC ESC \ ESC P \ and bookending with ESC P and ESC \.
-	" (Quoting hell compels me to spell this out.)
+	" Package `seq` into a Device Control String sequence by
+	" converting ESC \ to ESC ESC \ ESC P \ and bookending it with
+	" ESC P and ESC \.  (Quoting hell compels me to spell this out.)
 	"
-	" This seems poorly documented.  The `screen` manual [3] mentions
-	" that DCS '[o]utputs a string directly to the host terminal without
-	" interpretation' but says nothing about handling embedded ESC \.
-	" After skimming the source [4], I wrongly concluded that it was
-	" sufficient to imitate tmux and convert ESC to ESC ESC.  I realized
-	" my mistake upon coming across a more general implementation in
-	" Koichi Murase's ble.sh [5] that works within nested `screen`
-	" instances (while mine didn't).  (I don't really understand why
-	" Murase's approach works but mine didn't.  Maybe one day I'll
-	" close-read the `screen` source, but that day is not today.)
+	" This seems poorly documented.  The `screen` manual [3] says
+	" that DCS '[o]utputs a string directly to the host terminal
+	" without interpretation' but says nothing about handling
+	" embedded ESC \.  After skimming the source [4], I wrongly
+	" concluded that it was sufficient to imitate tmux and convert
+	" ESC to ESC ESC.  I realized my mistake upon coming across
+	" a more general implementation in Koichi Murase's ble.sh [5]
+	" that works within nested `screen` instances (while mine
+	" didn't).  (I don't really understand why Murase's approach
+	" works but mine didn't.  Maybe one day I'll close-read the
+	" `screen` source, but that day is not today.)
 
 	" Use a double-quoted literal for the substitute() replacement
 	" argument because '\e' is not interpreted as ESC there.
